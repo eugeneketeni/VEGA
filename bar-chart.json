@@ -1,0 +1,23 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v2.json",
+  "description": "Agricultural Damages",
+  "data": {
+    "url": "https://raw.githubusercontent.com/eugeneketeni/VEGA/master/losses2015_transformed.csv"
+  },
+  "transform": [],
+  "mark": "bar",
+  "encoding": {
+    "y": {
+      "field": "Damage_Descp",
+      "type": "ordinal",
+      "scale": {"rangeStep": 17},
+      "sort": {"op": "sum", "field": "Amount", "order": "ascending"}
+    },
+    "x": {
+      "aggregate": "sum",
+      "field": "Amount",
+      "type": "quantitative",
+      "axis": {"title": "population"}
+    }
+  }
+}
