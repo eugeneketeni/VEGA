@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>D3 Graphs</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" charset="utf-8"></script>
+    </head>
+    <body>
+        <style>
+            svg {
+                margin-left: 20px;
+                display: block;
+            }
+            .axis path,
+            .axis line {
+                fill: none;
+                stroke: #000;
+                shape-rendering: crispEdges;
+            }
+            .axis text{
+                font: Times;
+                font-size: 12px;
+                font-weight: bold;
+            }
+        </style>
+        <h1 style="text-align:left;">Losses 2015 [$] State: TX</h1>
+        <script>
+            var margin = {
+                top: 20,
+                right: 10,
+                bottom: 200,
+                left: 70
+            },
+                width = 700 - margin.right - margin.left,
+                height = 500 - margin.top - margin.bottom;
+            var svg = d3.select("body")
+            .append("svg")
+            .attr({
+                "width": width + margin.right + margin.left,
+                "height": height + margin.top + margin.bottom
+            })
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.right + ")");
+            var xScale = d3.scale.ordinal()
+            .rangeRoundBands([0, width], 0.1, 0);
+            var yScale = d3.scale.linear()
+            .range([height, 0]);
+            var xAxis = d3.svg.axis()
+            .scale(xScale)
+            .orient("bottom");
+            var yAxis = d3.svg.axis()
+            .scale(yScale)
+            .orient("left");
+            d3.csv("https://raw.githubusercontent.com/eugeneketeni/VEGA/master/losses2015_transformed.csv", function (error, data) {
+                if (error) console.log("Error. No data!!");
+                data.forEach(function (d) {
+                    d.Amount = +d.Amount/1000000;
+                    d.Damage_Descp = d.Damage_Descp;
+                });
+                data.sort(function (a, b) {
+                    return b.Amount - a.Amount;
+                });
+                xScale.domain(data.map(function (d) {
+                    return d.Damage_Descp;
+                }));
+                yScale.domain([0, d3.max(data, function (d) {
+                    return d.Amount;
+                })]);
+                svg.selectAll('rect')
+                    .data(data)
+                    .enter()
+                    .append('rect')
+                    .attr("height", 0)
+                    .attr("y", height)
+                    .attr({
+                    "x": function (d) {
+                        return xScale(d.Damage_Descp);
+                    },
+                    "y": function (d) {
+                        return yScale(d.Amount);
+                    },
+                    "width": xScale.rangeBand(),
+                    "height": function (d) {
+                        return height - yScale(d.Amount);
+                    }
+                })
+                    .style("fill", function (d, i) {
+                    return 'rgb(12, 164, ' + ((i * 10) + 150) + ')'
+                });
+                svg.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(xAxis)
+                    .selectAll("text")
+                    .attr("dx", "-.8em")
+                    .attr("dy", ".25em")
+                    .attr("transform", "rotate(-60)")
+                    .style("text-anchor", "end")
+                    .attr("font-size", "12px");
+                svg.append("g")
+                    .attr("class", "y axis")
+                    .call(yAxis)
+                    .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("x", -height / 2)
+                    .attr("dy", "-3em")
+                    .style("text-anchor", "middle")
+
+
+
+
+            });
+        </script>
+    </body>
+</html>
